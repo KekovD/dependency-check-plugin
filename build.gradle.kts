@@ -7,10 +7,10 @@ fun environment(key: String) = providers.environmentVariable(key)
 plugins {
     id("java") // Java support
     alias(libs.plugins.kotlin) // Kotlin support
-    alias(libs.plugins.gradleIntelliJPlugin) // Gradle IntelliJ Plugin
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
     alias(libs.plugins.kover) // Gradle Kover Plugin
+    id("org.jetbrains.intellij.platform") version "2.0.0-beta7"
 }
 
 group = properties("pluginGroup").get()
@@ -19,26 +19,32 @@ version = properties("pluginVersion").get()
 // Configure project's dependencies
 repositories {
     mavenCentral()
+    maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
+
+    intellijPlatform {
+        defaultRepositories()
+    }
 }
+
+val remoteRobotVersion = "0.11.23"
 
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
-//    implementation(libs.exampleLibrary)
+    intellijPlatform {
+        val plaginName = properties("pluginName").get()
+        val version = properties("platformVersion").get()
+        val type = properties("platformType").get()
+
+        val plugins = properties("platformPlugins").get()
+    }
+
+    testImplementation("com.intellij.remoterobot:remote-robot:$remoteRobotVersion")
+    testImplementation("com.intellij.remoterobot:remote-fixtures:$remoteRobotVersion")
 }
 
 // Set the JVM language level used to build the project.
 kotlin {
     jvmToolchain(17)
-}
-
-// Configure Gradle IntelliJ Plugin - read more: https://plugins.jetbrains.com/docs/intellij/tools-gradle-intellij-plugin.html
-intellij {
-    pluginName = properties("pluginName")
-    version = properties("platformVersion")
-    type = properties("platformType")
-
-    // Plugin Dependencies. Uses `platformPlugins` property from the gradle.properties file.
-    plugins = properties("platformPlugins").map { it.split(',').map(String::trim).filter(String::isNotEmpty) }
 }
 
 // Configure Gradle Changelog Plugin - read more: https://github.com/JetBrains/gradle-changelog-plugin
@@ -59,6 +65,10 @@ kover {
 }
 
 tasks {
+    downloadRobotServerPlugin {
+        version.set(remoteRobotVersion)
+    }
+
     wrapper {
         gradleVersion = properties("gradleVersion").get()
     }
