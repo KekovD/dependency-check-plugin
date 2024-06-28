@@ -3,6 +3,7 @@
     <id>com.github.kekovd.dependencycheckplugin</id>
     <name>Dependency-Check</name>
     <vendor>kekovd</vendor>
+    <description>Dependency Check plugin [sample text] [sample text]</description>
 
     <depends>com.intellij.modules.platform</depends>
 
