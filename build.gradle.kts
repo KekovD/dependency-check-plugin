@@ -10,7 +10,8 @@ plugins {
     alias(libs.plugins.changelog) // Gradle Changelog Plugin
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
     alias(libs.plugins.kover) // Gradle Kover Plugin
-    id("org.jetbrains.intellij.platform") version "2.0.0-beta7"
+    id("org.jetbrains.intellij") version "1.17.4"
+    //id("org.jetbrains.intellij.platform.migration") version "2.0.0-beta7"
 }
 
 group = properties("pluginGroup").get()
@@ -20,24 +21,19 @@ version = properties("pluginVersion").get()
 repositories {
     mavenCentral()
     maven("https://cache-redirector.jetbrains.com/intellij-dependencies")
-
-    intellijPlatform {
-        defaultRepositories()
-    }
+    maven("https://www.jetbrains.com/intellij-repository/releases")
+    maven("https://www.jetbrains.com/intellij-repository/snapshots")
+    maven("https://packages.jetbrains.team/maven/p/ij/intellij-dependencies")
 }
 
 val remoteRobotVersion = "0.11.23"
 
+intellij {
+    version.set("233.15026.9")
+}
+
 // Dependencies are managed with Gradle version catalog - read more: https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
 dependencies {
-    intellijPlatform {
-        val plaginName = properties("pluginName").get()
-        val version = properties("platformVersion").get()
-        val type = properties("platformType").get()
-
-        val plugins = properties("platformPlugins").get()
-    }
-
     testImplementation("com.intellij.remoterobot:remote-robot:$remoteRobotVersion")
     testImplementation("com.intellij.remoterobot:remote-fixtures:$remoteRobotVersion")
 }
@@ -66,7 +62,7 @@ kover {
 
 tasks {
     downloadRobotServerPlugin {
-        version.set(remoteRobotVersion)
+        version = remoteRobotVersion
     }
 
     wrapper {
