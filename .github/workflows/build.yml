@@ -156,10 +156,18 @@ jobs:
           tool-cache: false
           large-packages: false
 
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-home-cache-cleanup: true
+      - name: Install SDKMAN
+        run: curl -s "https://get.sdkman.io" | bash
+
+      - name: Initialize SDKMAN
+        run: |
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+
+      - name: Install Gradle
+        run: |
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdk install gradle 7.5.1  # укажите необходимую версию Gradle
+
 
       # Check out the current repository
       - name: Fetch Sources
