@@ -156,19 +156,11 @@ jobs:
           tool-cache: false
           large-packages: false
 
-      - name: Install SDKMAN
+      - name: Install SDKMAN and Gradle
         run: |
           curl -s "https://get.sdkman.io" | bash
-          source "$HOME/.sdkman/bin/sdkman-init.sh"
-          echo 'export SDKMAN_DIR="/root/.sdkman"' >> $GITHUB_ENV
-          echo 'source $SDKMAN_DIR/bin/sdkman-init.sh' >> $HOME/.bashrc
-
-      - name: Install Gradle using SDKMAN
-        run: |
-          source "$HOME/.sdkman/bin/sdkman-init.sh"
-          sdk install gradle
-          ln -s "$SDKMAN_DIR/candidates/gradle/current" "/root/.sdkman/candidates/gradle/current"
-
+          source "/root/.sdkman/bin/sdkman-init.sh"
+          sdk install gradle 8.8
 
       # Check out the current repository
       - name: Fetch Sources
