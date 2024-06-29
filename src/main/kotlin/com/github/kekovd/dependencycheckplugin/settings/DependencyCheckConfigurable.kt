@@ -14,6 +14,7 @@ class DependencyCheckConfigurable : Configurable {
     private var nvdApiKeyField: JTextField? = null
     private var scannerStartUpdateVulnerabilityCheckBox: JCheckBox? = null
     private var appActivationUpdateVulnerabilityCheckBox: JCheckBox? = null
+    private var scanAfterChangeDependencyFilesCheckBox: JCheckBox? = null
 
     override fun createComponent(): JComponent? {
         if (settingsPanel == null) {
@@ -26,6 +27,7 @@ class DependencyCheckConfigurable : Configurable {
             nvdApiKeyField = JTextField(20)
             scannerStartUpdateVulnerabilityCheckBox = JCheckBox("Update vulnerability data when scanning starts")
             appActivationUpdateVulnerabilityCheckBox = JCheckBox("Update vulnerability data when launching the IDE")
+            scanAfterChangeDependencyFilesCheckBox = JCheckBox("Scanning after modifying dependency files")
 
             val dependencyCheckScriptPathLabel = JLabel("Full path to dependency-check[.sh/.bat]")
             val outputPathLabel = JLabel("Path to save reports:")
@@ -77,8 +79,14 @@ class DependencyCheckConfigurable : Configurable {
             constraints.weightx = 1.0
             settingsPanel!!.add(appActivationUpdateVulnerabilityCheckBox!!, constraints)
 
-            constraints.gridx = 0
+            constraints.gridx = 1
             constraints.gridy = 6
+            constraints.gridwidth = 2
+            constraints.weightx = 1.0
+            settingsPanel!!.add(scanAfterChangeDependencyFilesCheckBox!!, constraints)
+
+            constraints.gridx = 0
+            constraints.gridy = 7
             constraints.weighty = 1.0
             constraints.fill = GridBagConstraints.BOTH
             settingsPanel!!.add(Box.createVerticalGlue(), constraints)
@@ -93,7 +101,8 @@ class DependencyCheckConfigurable : Configurable {
                 addToGitignoreCheckBox!!.isSelected != settings.addToGitignore ||
                 nvdApiKeyField!!.text != settings.nvdApiKey ||
                 scannerStartUpdateVulnerabilityCheckBox!!.isSelected != settings.scannerStartUpdateVulnerability ||
-                appActivationUpdateVulnerabilityCheckBox!!.isSelected != settings.appActivationUpdateVulnerability
+                appActivationUpdateVulnerabilityCheckBox!!.isSelected != settings.appActivationUpdateVulnerability ||
+                scanAfterChangeDependencyFilesCheckBox!!.isSelected != settings.scanAfterChangeDependencyFiles
     }
 
     override fun apply() {
@@ -104,6 +113,7 @@ class DependencyCheckConfigurable : Configurable {
         settings.nvdApiKey = nvdApiKeyField!!.text
         settings.scannerStartUpdateVulnerability = scannerStartUpdateVulnerabilityCheckBox!!.isSelected
         settings.appActivationUpdateVulnerability = appActivationUpdateVulnerabilityCheckBox!!.isSelected
+        settings.scanAfterChangeDependencyFiles = scanAfterChangeDependencyFilesCheckBox!!.isSelected
     }
 
     override fun reset() {
@@ -114,6 +124,7 @@ class DependencyCheckConfigurable : Configurable {
         nvdApiKeyField!!.text = settings.nvdApiKey
         scannerStartUpdateVulnerabilityCheckBox!!.isSelected = settings.scannerStartUpdateVulnerability
         appActivationUpdateVulnerabilityCheckBox!!.isSelected = settings.appActivationUpdateVulnerability
+        scanAfterChangeDependencyFilesCheckBox!!.isSelected = settings.scanAfterChangeDependencyFiles
     }
 
     override fun getDisplayName(): String {

@@ -7,8 +7,6 @@
 
     <depends>com.intellij.modules.platform</depends>
 
-    <resource-bundle>messages.MyBundle</resource-bundle>
-
     <extensions defaultExtensionNs="com.intellij">
         <notificationGroup id="DependencyCheckUpdates" displayType="BALLOON" />
         <toolWindow factoryClass="com.github.kekovd.dependencycheckplugin.toolWindow.CheckerToolWindowFactory" id="Dependency Check"/>
