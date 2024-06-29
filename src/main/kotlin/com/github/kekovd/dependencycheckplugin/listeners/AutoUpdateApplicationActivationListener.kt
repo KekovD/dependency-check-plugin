@@ -1,23 +1,29 @@
 package com.github.kekovd.dependencycheckplugin.listeners
 
-import com.github.kekovd.dependencycheckplugin.services.UpdateProgressBarService
 import com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationActivationListener
-import com.intellij.openapi.wm.IdeFrame
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.wm.*
+import com.intellij.util.Consumer
+import java.awt.Component
+import java.awt.event.MouseEvent
 import java.io.BufferedReader
 import java.io.InputStreamReader
-import javax.swing.JProgressBar
 import javax.swing.SwingUtilities
 
-@Suppress("UNUSED_EXPRESSION")
 class AutoUpdateApplicationActivationListener : ApplicationActivationListener {
-    private val progressBar = JProgressBar(0, 100)
-    private val updateProgressBarService = UpdateProgressBarService()
     private var isUpdateInProgress = false
+    private var progressBarWidget: StatusBarWidget? = null
+    private var statusBar: StatusBar? = null
+    private var updatePercent: Int = 0
 
     override fun applicationActivated(ideFrame: IdeFrame) {
+        val project = ideFrame.project ?: return
+        statusBar = WindowManager.getInstance().getStatusBar(project)
+
         val settings = DependencyCheckSettings.getInstance().state
         val nvdApiKey = settings.nvdApiKey
         val dependencyCheckScriptPath = settings.dependencyCheckScriptPath
@@ -26,7 +32,6 @@ class AutoUpdateApplicationActivationListener : ApplicationActivationListener {
 
         isUpdateInProgress = true
 
-
         val notificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("DependencyCheckUpdates")
 
         if (dependencyCheckScriptPath.isBlank()) {
@@ -34,7 +39,7 @@ class AutoUpdateApplicationActivationListener : ApplicationActivationListener {
                 "Path to dependency-check.sh is not set. Please configure it in settings.",
                 NotificationType.ERROR
             )
-            errorNotification.notify(ideFrame.project)
+            errorNotification.notify(project)
             return
         }
 
@@ -43,12 +48,15 @@ class AutoUpdateApplicationActivationListener : ApplicationActivationListener {
                 "NVD Api Key is not set. Please configure it in settings.",
                 NotificationType.ERROR
             )
-            errorNotification.notify(ideFrame.project)
+            errorNotification.notify(project)
             return
         }
 
-        val notification = notificationGroup.createNotification("Update in progress", NotificationType.INFORMATION)
-        notification.notify(ideFrame.project)
+        val notification =
+            notificationGroup.createNotification("Dependency Check update progress", NotificationType.INFORMATION)
+        notification.notify(project)
+
+        addProgressBarToStatusBar(project)
 
         val processBuilder = ProcessBuilder(
             dependencyCheckScriptPath,
@@ -67,13 +75,12 @@ class AutoUpdateApplicationActivationListener : ApplicationActivationListener {
                 var progress = 0
                 val totalSteps = 100
 
-                while (reader.readLine().also { it } != null) {
+                while (reader.readLine().also { var line = it } != null) {
                     progress++
-                    val percent = (progress.toDouble() / totalSteps.toDouble() * 100).toInt()
-                    
+                    updatePercent = (progress.toDouble() / totalSteps.toDouble() * 100).toInt()
+
                     SwingUtilities.invokeLater {
-                        updateProgressBarService.updateProgressBar(progressBar, percent)
-                        notification.setContent("Progress: $percent%")
+                        progressBarWidget?.let { statusBar?.updateWidget(it.ID()) }
                     }
                 }
 
@@ -84,15 +91,35 @@ class AutoUpdateApplicationActivationListener : ApplicationActivationListener {
                     } else {
                         notification.setContent("Dependency Check update failed. Exit code: $exitCode")
                     }
+
+                    updatePercent = 100
+                    progressBarWidget?.let { statusBar?.updateWidget(it.ID()) }
                 }
             } catch (ex: Exception) {
                 SwingUtilities.invokeLater {
-                    progressBar.value = 100
+                    updatePercent = 100
                     notification.setContent("Error running Dependency Check: ${ex.message}")
+                    progressBarWidget?.let { statusBar?.updateWidget(it.ID()) }
                 }
-            } finally {
-                isUpdateInProgress = false
             }
         }.start()
+    }
+
+    private fun addProgressBarToStatusBar(project: Project) {
+        val statusBar = WindowManager.getInstance().getStatusBar(project)
+        progressBarWidget = object : StatusBarWidget, StatusBarWidget.TextPresentation {
+            override fun ID() = "DependencyCheckProgressBar"
+            override fun getPresentation() = this
+            override fun install(statusBar: StatusBar) {}
+            override fun dispose() {}
+            override fun getText() = "Update progress: ${updatePercent}%"
+            override fun getAlignment() = Component.CENTER_ALIGNMENT
+            override fun getTooltipText() = "Dependency Check Progress"
+            override fun getClickConsumer() = Consumer<MouseEvent> {}
+        }
+
+        statusBar?.addWidget(progressBarWidget!!, "before Position", object : Disposable {
+            override fun dispose() {}
+        })
     }
 }
