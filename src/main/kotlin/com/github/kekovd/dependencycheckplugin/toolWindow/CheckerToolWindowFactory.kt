@@ -13,8 +13,4 @@ class CheckerToolWindowFactory : ToolWindowFactory {
             addContent(content)
         }
     }
-
-    override fun shouldBeAvailable(project: Project): Boolean {
-        return true
-    }
 }
