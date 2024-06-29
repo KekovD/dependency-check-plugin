@@ -8,24 +8,26 @@ import javax.swing.*
 class DependencyCheckConfigurable : Configurable {
 
     private var settingsPanel: JPanel? = null
-    private var pathField: JTextField? = null
+    private var dependencyCheckScriptPathField: JTextField? = null
     private var outputPathField: JTextField? = null
     private var addToGitignoreCheckBox: JCheckBox? = null
     private var nvdApiKeyField: JTextField? = null
-    private var updateVulnerabilityCheckBox: JCheckBox? = null
+    private var scannerStartUpdateVulnerabilityCheckBox: JCheckBox? = null
+    private var appActivationUpdateVulnerabilityCheckBox: JCheckBox? = null
 
     override fun createComponent(): JComponent? {
         if (settingsPanel == null) {
             settingsPanel = JPanel(GridBagLayout())
             val constraints = GridBagConstraints()
 
-            pathField = JTextField(20)
+            dependencyCheckScriptPathField = JTextField(20)
             outputPathField = JTextField(20)
             addToGitignoreCheckBox = JCheckBox("Add report output path to .gitignore")
             nvdApiKeyField = JTextField(20)
-            updateVulnerabilityCheckBox  = JCheckBox("Update vulnerability data when scanning starts")
+            scannerStartUpdateVulnerabilityCheckBox = JCheckBox("Update vulnerability data when scanning starts")
+            appActivationUpdateVulnerabilityCheckBox = JCheckBox("Update vulnerability data when launching the IDE")
 
-            val pathLabel = JLabel("Full path to dependency-check[.sh/.bat]")
+            val dependencyCheckScriptPathLabel = JLabel("Full path to dependency-check[.sh/.bat]")
             val outputPathLabel = JLabel("Path to save reports:")
             val nvdApiKeyLabel = JLabel("NVD API key:")
 
@@ -33,11 +35,11 @@ class DependencyCheckConfigurable : Configurable {
             constraints.gridx = 0
             constraints.gridy = 0
             constraints.weightx = 0.0
-            settingsPanel!!.add(pathLabel, constraints)
+            settingsPanel!!.add(dependencyCheckScriptPathLabel, constraints)
 
             constraints.gridx = 1
             constraints.weightx = 1.0
-            settingsPanel!!.add(pathField!!, constraints)
+            settingsPanel!!.add(dependencyCheckScriptPathField!!, constraints)
 
             constraints.gridx = 0
             constraints.gridy = 1
@@ -67,10 +69,16 @@ class DependencyCheckConfigurable : Configurable {
             constraints.gridy = 4
             constraints.gridwidth = 2
             constraints.weightx = 1.0
-            settingsPanel!!.add(updateVulnerabilityCheckBox!!, constraints)
+            settingsPanel!!.add(scannerStartUpdateVulnerabilityCheckBox!!, constraints)
+
+            constraints.gridx = 1
+            constraints.gridy = 5
+            constraints.gridwidth = 2
+            constraints.weightx = 1.0
+            settingsPanel!!.add(appActivationUpdateVulnerabilityCheckBox!!, constraints)
 
             constraints.gridx = 0
-            constraints.gridy = 5
+            constraints.gridy = 6
             constraints.weighty = 1.0
             constraints.fill = GridBagConstraints.BOTH
             settingsPanel!!.add(Box.createVerticalGlue(), constraints)
@@ -80,29 +88,32 @@ class DependencyCheckConfigurable : Configurable {
 
     override fun isModified(): Boolean {
         val settings = DependencyCheckSettings.getInstance().state
-        return pathField!!.text != settings.dependencyCheckPath ||
+        return dependencyCheckScriptPathField!!.text != settings.dependencyCheckScriptPath ||
                 outputPathField!!.text != settings.reportOutputPath ||
                 addToGitignoreCheckBox!!.isSelected != settings.addToGitignore ||
                 nvdApiKeyField!!.text != settings.nvdApiKey ||
-                updateVulnerabilityCheckBox!!.isSelected != settings.updateVulnerability
+                scannerStartUpdateVulnerabilityCheckBox!!.isSelected != settings.scannerStartUpdateVulnerability ||
+                appActivationUpdateVulnerabilityCheckBox!!.isSelected != settings.appActivationUpdateVulnerability
     }
 
     override fun apply() {
         val settings = DependencyCheckSettings.getInstance().state
-        settings.dependencyCheckPath = pathField!!.text
+        settings.dependencyCheckScriptPath = dependencyCheckScriptPathField!!.text
         settings.reportOutputPath = outputPathField!!.text
         settings.addToGitignore = addToGitignoreCheckBox!!.isSelected
         settings.nvdApiKey = nvdApiKeyField!!.text
-        settings.updateVulnerability = updateVulnerabilityCheckBox!!.isSelected
+        settings.scannerStartUpdateVulnerability = scannerStartUpdateVulnerabilityCheckBox!!.isSelected
+        settings.appActivationUpdateVulnerability = appActivationUpdateVulnerabilityCheckBox!!.isSelected
     }
 
     override fun reset() {
         val settings = DependencyCheckSettings.getInstance().state
-        pathField!!.text = settings.dependencyCheckPath
+        dependencyCheckScriptPathField!!.text = settings.dependencyCheckScriptPath
         outputPathField!!.text = settings.reportOutputPath
         addToGitignoreCheckBox!!.isSelected = settings.addToGitignore
         nvdApiKeyField!!.text = settings.nvdApiKey
-        updateVulnerabilityCheckBox!!.isSelected = settings.updateVulnerability
+        scannerStartUpdateVulnerabilityCheckBox!!.isSelected = settings.scannerStartUpdateVulnerability
+        appActivationUpdateVulnerabilityCheckBox!!.isSelected = settings.appActivationUpdateVulnerability
     }
 
     override fun getDisplayName(): String {

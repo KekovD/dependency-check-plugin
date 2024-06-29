@@ -1,5 +1,6 @@
 package com.github.kekovd.dependencycheckplugin.toolWindow
 
+import com.github.kekovd.dependencycheckplugin.services.UpdateProgressBarService
 import com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBPanel
@@ -15,6 +16,7 @@ class ScanPanel(project: Project) : JBPanel<JBPanel<*>>() {
 
     private val textArea = JTextArea()
     private val progressBar = JProgressBar(0, 100)
+    private val updateProgressBarService = UpdateProgressBarService()
 
     init {
         layout = BorderLayout()
@@ -32,9 +34,9 @@ class ScanPanel(project: Project) : JBPanel<JBPanel<*>>() {
             textArea.replaceSelection("")
 
             val settings = DependencyCheckSettings.getInstance().state
-            val dependencyCheckPath = settings.dependencyCheckPath
+            val dependencyCheckScriptPath = settings.dependencyCheckScriptPath
 
-            if (dependencyCheckPath.isEmpty()) {
+            if (dependencyCheckScriptPath.isEmpty()) {
                 JOptionPane.showMessageDialog(
                     this,
                     "Path to dependency-check.sh is not set. Please configure it in settings.",
@@ -75,10 +77,10 @@ class ScanPanel(project: Project) : JBPanel<JBPanel<*>>() {
                 }
             }
 
-            val updateVulnerability = if (settings.updateVulnerability) "" else "--noupdate"
+            val scannerStartUpdateVulnerability = if (settings.scannerStartUpdateVulnerability) "" else "--noupdate"
 
             val processBuilder = ProcessBuilder(
-                dependencyCheckPath,
+                dependencyCheckScriptPath,
                 "--project",
                 project.name,
                 "--out",
@@ -88,7 +90,7 @@ class ScanPanel(project: Project) : JBPanel<JBPanel<*>>() {
                 "--enableExperimental",
                 "--nvdApiKey",
                 nvdApiKey,
-                updateVulnerability
+                scannerStartUpdateVulnerability
             )
 
             processBuilder.redirectErrorStream(true)
@@ -110,7 +112,7 @@ class ScanPanel(project: Project) : JBPanel<JBPanel<*>>() {
 
                         progress++
                         val percent = (progress.toDouble() / totalSteps.toDouble() * 100).toInt()
-                        updateProgressBar(percent)
+                        updateProgressBarService.updateProgressBar(progressBar, percent)
                     }
 
                     val exitCode = process.waitFor()
@@ -124,7 +126,7 @@ class ScanPanel(project: Project) : JBPanel<JBPanel<*>>() {
                         }
                     }
                 } catch (e: Exception) {
-                    progressBar.value = 100
+
 
                     SwingUtilities.invokeLater {
                         textArea.append("Error running Dependency Check: ${e.message}\n")
@@ -135,11 +137,5 @@ class ScanPanel(project: Project) : JBPanel<JBPanel<*>>() {
         }
 
         textArea.isEditable = false
-    }
-
-    private fun updateProgressBar(value: Int) {
-        SwingUtilities.invokeLater {
-            progressBar.value = value
-        }
     }
 }

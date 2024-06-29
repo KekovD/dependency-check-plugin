@@ -10,8 +10,14 @@
     <resource-bundle>messages.MyBundle</resource-bundle>
 
     <extensions defaultExtensionNs="com.intellij">
+        <notificationGroup id="DependencyCheckUpdates" displayType="BALLOON" />
         <toolWindow factoryClass="com.github.kekovd.dependencycheckplugin.toolWindow.CheckerToolWindowFactory" id="Dependency Check"/>
         <applicationService serviceImplementation="com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings"/>
         <projectConfigurable instance="com.github.kekovd.dependencycheckplugin.settings.DependencyCheckConfigurable" displayName="Dependency Check" id="DependencyCheckConfigurable"/>
     </extensions>
+
+    <applicationListeners>
+        <listener class="com.github.kekovd.dependencycheckplugin.listeners.AutoUpdateApplicationActivationListener"
+                  topic="com.intellij.openapi.application.ApplicationActivationListener"/>
+    </applicationListeners>
 </idea-plugin>

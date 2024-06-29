@@ -19,11 +19,12 @@ class DependencyCheckSettings : PersistentStateComponent<DependencyCheckSettings
     }
 
     data class State(
-        var dependencyCheckPath: String = "",
+        var dependencyCheckScriptPath: String = "",
         var reportOutputPath: String = "",
         var addToGitignore: Boolean = false,
         var nvdApiKey: String = "",
-        var updateVulnerability: Boolean = false
+        var scannerStartUpdateVulnerability: Boolean = false,
+        var appActivationUpdateVulnerability: Boolean = false,
     )
 
     companion object {
