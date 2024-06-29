@@ -3,6 +3,9 @@ package com.github.kekovd.dependencycheckplugin.toolWindow
 import com.github.kekovd.dependencycheckplugin.services.UpdateProgressBarService
 import com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import javax.swing.*
@@ -61,21 +64,10 @@ class ScanPanel(project: Project) : JBPanel<JBPanel<*>>() {
             val basePath = project.basePath ?: return@addActionListener
 
             val outputDirPath = settings.reportOutputPath.ifEmpty {
-                basePath
+                "$basePath/.dependency-check"
             }
 
             val outputDir = File(outputDirPath)
-
-            if (settings.addToGitignore) {
-                val gitignoreFile = File(basePath, ".gitignore")
-                if (gitignoreFile.exists() && gitignoreFile.isFile) {
-                    val gitignoreContent = gitignoreFile.readText()
-                    val relativeOutputPath = basePath.run { Paths.get(this).relativize(Paths.get(outputDirPath)).toString() }
-                    if (!gitignoreContent.contains(relativeOutputPath)) {
-                        gitignoreFile.appendText("\n$relativeOutputPath")
-                    }
-                }
-            }
 
             val scannerStartUpdateVulnerability = if (settings.scannerStartUpdateVulnerability) "" else "--noupdate"
 
@@ -94,9 +86,14 @@ class ScanPanel(project: Project) : JBPanel<JBPanel<*>>() {
             )
 
             processBuilder.redirectErrorStream(true)
+            val currentFile: VirtualFile? = basePath.let { LocalFileSystem.getInstance().findFileByPath(it) }
 
             Thread {
                 try {
+                    button.isEnabled = false
+
+                    updateGitignore(settings, basePath, outputDirPath)
+
                     val process = processBuilder.start()
                     val reader = BufferedReader(InputStreamReader(process.inputStream))
                     var line: String?
@@ -124,18 +121,51 @@ class ScanPanel(project: Project) : JBPanel<JBPanel<*>>() {
                         } else {
                             textArea.append("Dependency Check scan failed. Exit code: $exitCode\n")
                         }
+
+                        button.isEnabled = true
+
+                        VfsUtil.markDirtyAndRefresh(true, true, true, currentFile)
                     }
                 } catch (e: Exception) {
-
-
                     SwingUtilities.invokeLater {
                         textArea.append("Error running Dependency Check: ${e.message}\n")
                         e.printStackTrace()
+
+                        button.isEnabled = true
+
+                        VfsUtil.markDirtyAndRefresh(true, true, true, currentFile)
                     }
                 }
             }.start()
         }
 
         textArea.isEditable = false
+    }
+
+    private fun updateGitignore(settings: DependencyCheckSettings.State, basePath: String, outputDirPath: String) {
+        if (settings.addToGitignore) {
+            val gitignoreFile = File(basePath, ".gitignore")
+            if (gitignoreFile.exists() && gitignoreFile.isFile) {
+                val relativeOutputPath = basePath.run { Paths.get(this).relativize(Paths.get(outputDirPath)).toString() }
+                val lineToAdd = "\n$relativeOutputPath"
+                val gitignoreContent = gitignoreFile.readText()
+
+                if (!gitignoreContent.contains(lineToAdd)) {
+                    gitignoreFile.appendText(lineToAdd)
+                }
+            }
+        } else {
+            val gitignoreFile = File(basePath, ".gitignore")
+            if (gitignoreFile.exists() && gitignoreFile.isFile) {
+                val relativeOutputPath = basePath.run { Paths.get(this).relativize(Paths.get(outputDirPath)).toString() }
+                val lineToRemove = "\n$relativeOutputPath"
+                val gitignoreContent = gitignoreFile.readText()
+
+                if (gitignoreContent.contains(lineToRemove)) {
+                    val updatedContent = gitignoreContent.replace(lineToRemove, "")
+                    gitignoreFile.writeText(updatedContent)
+                }
+            }
+        }
     }
 }

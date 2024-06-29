@@ -21,7 +21,7 @@ class DependencyCheckSettings : PersistentStateComponent<DependencyCheckSettings
     data class State(
         var dependencyCheckScriptPath: String = "",
         var reportOutputPath: String = "",
-        var addToGitignore: Boolean = false,
+        var addToGitignore: Boolean = true,
         var nvdApiKey: String = "",
         var scannerStartUpdateVulnerability: Boolean = false,
         var appActivationUpdateVulnerability: Boolean = false,
