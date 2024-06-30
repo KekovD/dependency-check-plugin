@@ -8,6 +8,10 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.DependencyCheckUpdateServiceImpl"
+                        serviceInterface="com.github.kekovd.dependencycheckplugin.services.interfaces.DependencyCheckUpdateService"/>
+        <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.ProgressBarServiceImpl"
+                        serviceInterface="com.github.kekovd.dependencycheckplugin.services.interfaces.ProgressBarService"/>
         <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.ShowNotificationServiceImpl"
                         serviceInterface="com.github.kekovd.dependencycheckplugin.services.interfaces.ShowNotificationService"/>
         <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.CSVServiceImpl"
