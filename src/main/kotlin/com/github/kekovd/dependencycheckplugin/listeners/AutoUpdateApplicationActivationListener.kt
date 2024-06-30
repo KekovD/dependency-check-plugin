@@ -32,29 +32,38 @@ class AutoUpdateApplicationActivationListener : ApplicationActivationListener {
 
         isUpdateInProgress = true
 
-        val notificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("DependencyCheckUpdates")
+        val notificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("DependencyCheckNotification")
 
         if (dependencyCheckScriptPath.isBlank()) {
-            val errorNotification = notificationGroup.createNotification(
-                "Path to dependency-check.sh is not set. Please configure it in settings.",
-                NotificationType.ERROR
-            )
-            errorNotification.notify(project)
+            SwingUtilities.invokeLater {
+                val errorNotification = notificationGroup.createNotification(
+                    "Path to dependency-check.sh is not set. Please configure it in settings.",
+                    NotificationType.ERROR
+                )
+                errorNotification.notify(project)
+            }
+
             return
         }
 
         if (nvdApiKey.isBlank()) {
-            val errorNotification = notificationGroup.createNotification(
-                "NVD Api Key is not set. Please configure it in settings.",
-                NotificationType.ERROR
-            )
-            errorNotification.notify(project)
+            SwingUtilities.invokeLater {
+                val errorNotification = notificationGroup.createNotification(
+                    "NVD Api Key is not set. Please configure it in settings.",
+                    NotificationType.ERROR
+                )
+                errorNotification.notify(project)
+            }
+
             return
         }
 
         val notification =
             notificationGroup.createNotification("Dependency Check update progress", NotificationType.INFORMATION)
-        notification.notify(project)
+
+        SwingUtilities.invokeLater {
+            notification.notify(project)
+        }
 
         addProgressBarToStatusBar(project)
 
@@ -92,13 +101,15 @@ class AutoUpdateApplicationActivationListener : ApplicationActivationListener {
                         notification.setContent("Dependency Check update failed. Exit code: $exitCode")
                     }
 
+                    notification.notify(project)
+
                     updatePercent = 100
                     progressBarWidget?.let { statusBar?.updateWidget(it.ID()) }
                 }
             } catch (ex: Exception) {
                 SwingUtilities.invokeLater {
                     updatePercent = 100
-                    notification.setContent("Error running Dependency Check: ${ex.message}")
+                    notification.setContent("Error updating Dependency Check: ${ex.message}")
                     progressBarWidget?.let { statusBar?.updateWidget(it.ID()) }
                 }
             }

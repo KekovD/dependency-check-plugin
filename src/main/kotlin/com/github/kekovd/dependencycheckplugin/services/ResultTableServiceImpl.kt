@@ -2,6 +2,8 @@ package com.github.kekovd.dependencycheckplugin.services
 
 import com.github.kekovd.dependencycheckplugin.services.interfaces.CellWidthService
 import com.github.kekovd.dependencycheckplugin.services.interfaces.ResultTableService
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTabbedPane
@@ -20,6 +22,7 @@ import javax.swing.table.DefaultTableModel
 
 class ResultTableServiceImpl(private val project: Project) : ResultTableService {
     private val cellWidthService = project.getService(CellWidthService::class.java)
+    private val notificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("DependencyCheckNotification")
 
     override fun addResultTable(tabbedPane: JBTabbedPane, csvFilePath: String, htmlFileLink: String) {
         val rows = mutableListOf<Array<String>>()
@@ -57,7 +60,11 @@ class ResultTableServiceImpl(private val project: Project) : ResultTableService 
                 }
             }
         } catch (e: Exception) {
-            e.printStackTrace()
+            SwingUtilities.invokeLater {
+                val notification =
+                    notificationGroup.createNotification("Error creating result table", NotificationType.ERROR)
+                notification.notify(project)
+            }
         }
 
         val tableModel = object : DefaultTableModel(headers, 0) {
@@ -100,7 +107,13 @@ class ResultTableServiceImpl(private val project: Project) : ResultTableService 
                         try {
                             Desktop.getDesktop().browse(java.net.URI(htmlFileLink))
                         } catch (ex: Exception) {
-                            ex.printStackTrace()
+                            SwingUtilities.invokeLater {
+                                val notification = notificationGroup.createNotification(
+                                    "Error opening browser",
+                                    NotificationType.ERROR
+                                )
+                                notification.notify(project)
+                            }
                         }
                     }
                 }
