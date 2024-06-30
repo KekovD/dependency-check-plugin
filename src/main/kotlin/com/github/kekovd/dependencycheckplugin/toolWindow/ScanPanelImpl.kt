@@ -1,10 +1,11 @@
 package com.github.kekovd.dependencycheckplugin.toolWindow
 
-import com.github.kekovd.dependencycheckplugin.listeners.DependencyFileListener
-import com.github.kekovd.dependencycheckplugin.services.ResultTableService
-import com.github.kekovd.dependencycheckplugin.services.UpdateGitignoreService
-import com.github.kekovd.dependencycheckplugin.services.UpdateProgressBarService
+import com.github.kekovd.dependencycheckplugin.listeners.interfaces.DependencyFileListener
+import com.github.kekovd.dependencycheckplugin.services.interfaces.ResultTableService
+import com.github.kekovd.dependencycheckplugin.services.interfaces.UpdateGitignoreService
+import com.github.kekovd.dependencycheckplugin.services.interfaces.UpdateProgressBarService
 import com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings
+import com.github.kekovd.dependencycheckplugin.toolWindow.interfaces.ScanPanel
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VfsUtil
@@ -14,26 +15,28 @@ import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTabbedPane
 import com.intellij.util.messages.MessageBusConnection
-import javax.swing.*
-import java.awt.*
+import java.awt.BorderLayout
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import javax.swing.*
 
-class ScanPanel(private val project: Project) : JBPanel<JBPanel<*>>() {
+class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanPanel {
 
     private val textArea = JTextArea()
     private val progressBar = JProgressBar(0, 100)
-    private val updateProgressBarService = UpdateProgressBarService()
-    private val updateGitignoreService = UpdateGitignoreService()
     private val scrollPane = JBScrollPane(textArea)
     private val button = JButton("Start Scan")
     private val tabbedPane = JBTabbedPane()
-    private val resultTableService = ResultTableService()
+
+    private val updateProgressBarService: UpdateProgressBarService = project.getService(UpdateProgressBarService::class.java)
+    private val updateGitignoreService: UpdateGitignoreService = project.getService(UpdateGitignoreService::class.java)
+    private val resultTableService: ResultTableService = project.getService(ResultTableService::class.java)
+    private val dependencyFileListener: DependencyFileListener = project.getService(DependencyFileListener::class.java)
 
     init {
         val connection: MessageBusConnection = project.messageBus.connect()
-        connection.subscribe(VirtualFileManager.VFS_CHANGES, DependencyFileListener(this))
+        connection.subscribe(VirtualFileManager.VFS_CHANGES, dependencyFileListener)
 
         layout = BorderLayout()
 
@@ -51,7 +54,7 @@ class ScanPanel(private val project: Project) : JBPanel<JBPanel<*>>() {
         textArea.isEditable = false
     }
 
-    fun startScan() {
+    override fun startScan() {
         textArea.selectAll()
         textArea.replaceSelection("")
 
@@ -146,7 +149,6 @@ class ScanPanel(private val project: Project) : JBPanel<JBPanel<*>>() {
                     button.isEnabled = true
 
                     resultTableService.addResultTable(
-                        project,
                         tabbedPane,
                         "$outputDirPath/dependency-check-report.csv",
                         "file://$outputDirPath/dependency-check-report.html")

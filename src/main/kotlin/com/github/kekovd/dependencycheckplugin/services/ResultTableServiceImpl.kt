@@ -1,5 +1,7 @@
 package com.github.kekovd.dependencycheckplugin.services
 
+import com.github.kekovd.dependencycheckplugin.services.interfaces.CellWidthService
+import com.github.kekovd.dependencycheckplugin.services.interfaces.ResultTableService
 import com.intellij.openapi.project.Project
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTabbedPane
@@ -16,8 +18,10 @@ import javax.swing.JPanel
 import javax.swing.SwingUtilities
 import javax.swing.table.DefaultTableModel
 
-class ResultTableService {
-    fun addResultTable(project: Project, tabbedPane: JBTabbedPane, csvFilePath: String, htmlFileLink: String) {
+class ResultTableServiceImpl(private val project: Project) : ResultTableService {
+    private val cellWidthService = project.getService(CellWidthService::class.java)
+
+    override fun addResultTable(tabbedPane: JBTabbedPane, csvFilePath: String, htmlFileLink: String) {
         val rows = mutableListOf<Array<String>>()
         var headers = arrayOf<String>()
         val excludeColumns = setOf(0, 1, 4, 5, 6, 7, 12)
@@ -69,10 +73,10 @@ class ResultTableService {
 
         for (column in 0 until table.columnCount) {
             val columnModel = table.columnModel.getColumn(column)
-            val headerWidth = getCellWidth(table, column, -1)
+            val headerWidth = cellWidthService.getCellWidth(table, column, -1)
             var maxWidth = headerWidth
             for (row in 0 until table.rowCount) {
-                val cellWidth = getCellWidth(table, column, row)
+                val cellWidth = cellWidthService.getCellWidth(table, column, row)
                 if (cellWidth > maxWidth) {
                     maxWidth = cellWidth
                 }
@@ -105,19 +109,5 @@ class ResultTableService {
         panel.add(linkLabel)
 
         tabbedPane.addTab("Results", panel)
-    }
-
-    private fun getCellWidth(table: JBTable, column: Int, row: Int): Int {
-        val renderer = if (row == -1) {
-            table.tableHeader.defaultRenderer
-        } else {
-            table.getCellRenderer(row, column)
-        }
-        val component = if (row == -1) {
-            renderer.getTableCellRendererComponent(table, table.columnModel.getColumn(column).headerValue, false, false, -1, column)
-        } else {
-            table.prepareRenderer(renderer, row, column)
-        }
-        return component.preferredSize.width + table.intercellSpacing.width
     }
 }

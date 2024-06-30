@@ -8,10 +8,23 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.toolWindow.ScanPanelImpl"
+                        serviceInterface="com.github.kekovd.dependencycheckplugin.toolWindow.interfaces.ScanPanel"/>
+        <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.CellWidthServiceImpl"
+                        serviceInterface="com.github.kekovd.dependencycheckplugin.services.interfaces.CellWidthService"/>
+        <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.UpdateGitignoreServiceImpl"
+                        serviceInterface="com.github.kekovd.dependencycheckplugin.services.interfaces.UpdateGitignoreService"/>
+        <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.listeners.DependencyFileListenerImpl"
+                        serviceInterface="com.github.kekovd.dependencycheckplugin.listeners.interfaces.DependencyFileListener"/>
+        <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.UpdateProgressBarServiceImpl"
+                        serviceInterface="com.github.kekovd.dependencycheckplugin.services.interfaces.UpdateProgressBarService"/>
+        <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.ResultTableServiceImpl"
+                        serviceInterface="com.github.kekovd.dependencycheckplugin.services.interfaces.ResultTableService"/>
         <notificationGroup id="DependencyCheckUpdates" displayType="BALLOON" />
         <toolWindow factoryClass="com.github.kekovd.dependencycheckplugin.toolWindow.CheckerToolWindowFactory" id="Dependency Check"/>
         <applicationService serviceImplementation="com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings"/>
-        <projectConfigurable instance="com.github.kekovd.dependencycheckplugin.settings.DependencyCheckConfigurable" displayName="Dependency Check" id="DependencyCheckConfigurable"/>
+        <projectConfigurable instance="com.github.kekovd.dependencycheckplugin.settings.DependencyCheckConfigurable"
+                             displayName="Dependency Check" id="DependencyCheckConfigurable"/>
     </extensions>
 
     <applicationListeners>

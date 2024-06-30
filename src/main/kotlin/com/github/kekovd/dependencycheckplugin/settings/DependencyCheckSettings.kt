@@ -7,7 +7,6 @@ import com.intellij.openapi.components.service
 
 @State(name = "DependencyCheckSettings", storages = [Storage("DependencyCheckSettings.xml")])
 class DependencyCheckSettings : PersistentStateComponent<DependencyCheckSettings.State> {
-
     private var state = State()
 
     override fun getState(): State {

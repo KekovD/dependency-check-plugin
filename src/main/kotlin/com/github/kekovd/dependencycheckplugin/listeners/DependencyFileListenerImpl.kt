@@ -1,15 +1,16 @@
 package com.github.kekovd.dependencycheckplugin.listeners
 
+import com.github.kekovd.dependencycheckplugin.listeners.interfaces.DependencyFileListener
 import com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings
-import com.github.kekovd.dependencycheckplugin.toolWindow.ScanPanel
-import com.intellij.openapi.vfs.newvfs.BulkFileListener
+import com.github.kekovd.dependencycheckplugin.toolWindow.interfaces.ScanPanel
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileCreateEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
 import java.util.Properties
 
-class DependencyFileListener(private val scanPanel: ScanPanel) : BulkFileListener {
+class DependencyFileListenerImpl(private val project: Project) : DependencyFileListener {
 
     private val filePatterns: List<String>
     private val fileExtensions: List<String>
@@ -26,6 +27,7 @@ class DependencyFileListener(private val scanPanel: ScanPanel) : BulkFileListene
     }
 
     override fun after(events: List<VFileEvent>) {
+        val scanPanel = project.getService(ScanPanel::class.java)
         val settings = DependencyCheckSettings.getInstance().state
 
         if (!settings.scanAfterChangeDependencyFiles) return

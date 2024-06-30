@@ -1,11 +1,12 @@
 package com.github.kekovd.dependencycheckplugin.services
 
+import com.github.kekovd.dependencycheckplugin.services.interfaces.UpdateGitignoreService
 import com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings
 import java.io.File
 import java.nio.file.Paths
 
-class UpdateGitignoreService {
-     fun updateGitignore(settings: DependencyCheckSettings.State, basePath: String, outputDirPath: String) {
+class UpdateGitignoreServiceImpl : UpdateGitignoreService {
+     override fun updateGitignore(settings: DependencyCheckSettings.State, basePath: String, outputDirPath: String) {
         if (settings.addToGitignore) {
             val gitignoreFile = File(basePath, ".gitignore")
             if (gitignoreFile.exists() && gitignoreFile.isFile) {
