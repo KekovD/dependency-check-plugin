@@ -11,7 +11,6 @@ plugins {
     alias(libs.plugins.qodana) // Gradle Qodana Plugin
     alias(libs.plugins.kover) // Gradle Kover Plugin
     id("org.jetbrains.intellij") version "1.17.4"
-    //id("org.jetbrains.intellij.platform.migration") version "2.0.0-beta7"
 }
 
 group = properties("pluginGroup").get()
@@ -36,6 +35,7 @@ intellij {
 dependencies {
     testImplementation("com.intellij.remoterobot:remote-robot:$remoteRobotVersion")
     testImplementation("com.intellij.remoterobot:remote-fixtures:$remoteRobotVersion")
+    implementation("com.opencsv:opencsv:5.9")
 }
 
 // Set the JVM language level used to build the project.

@@ -1,6 +1,7 @@
 package com.github.kekovd.dependencycheckplugin.toolWindow
 
 import com.github.kekovd.dependencycheckplugin.listeners.DependencyFileListener
+import com.github.kekovd.dependencycheckplugin.services.ResultTableService
 import com.github.kekovd.dependencycheckplugin.services.UpdateGitignoreService
 import com.github.kekovd.dependencycheckplugin.services.UpdateProgressBarService
 import com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings
@@ -11,6 +12,7 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.ui.components.JBPanel
 import com.intellij.ui.components.JBScrollPane
+import com.intellij.ui.components.JBTabbedPane
 import com.intellij.util.messages.MessageBusConnection
 import javax.swing.*
 import java.awt.*
@@ -26,6 +28,8 @@ class ScanPanel(private val project: Project) : JBPanel<JBPanel<*>>() {
     private val updateGitignoreService = UpdateGitignoreService()
     private val scrollPane = JBScrollPane(textArea)
     private val button = JButton("Start Scan")
+    private val tabbedPane = JBTabbedPane()
+    private val resultTableService = ResultTableService()
 
     init {
         val connection: MessageBusConnection = project.messageBus.connect()
@@ -33,10 +37,11 @@ class ScanPanel(private val project: Project) : JBPanel<JBPanel<*>>() {
 
         layout = BorderLayout()
 
-        add(scrollPane, BorderLayout.CENTER)
+        add(tabbedPane, BorderLayout.CENTER)
+
+        tabbedPane.addTab("Scan Output", scrollPane)
 
         add(button, BorderLayout.SOUTH)
-
         add(progressBar, BorderLayout.NORTH)
 
         button.addActionListener {
@@ -96,7 +101,9 @@ class ScanPanel(private val project: Project) : JBPanel<JBPanel<*>>() {
             "--enableExperimental",
             "--nvdApiKey",
             nvdApiKey,
-            scannerStartUpdateVulnerability
+            scannerStartUpdateVulnerability,
+            "--format", "CSV",
+            "--format", "HTML"
         )
 
         processBuilder.redirectErrorStream(true)
@@ -137,6 +144,12 @@ class ScanPanel(private val project: Project) : JBPanel<JBPanel<*>>() {
                     }
 
                     button.isEnabled = true
+
+                    resultTableService.addResultTable(
+                        project,
+                        tabbedPane,
+                        "$outputDirPath/dependency-check-report.csv",
+                        "file://$outputDirPath/dependency-check-report.html")
 
                     VfsUtil.markDirtyAndRefresh(true, true, true, currentFile)
                 }
