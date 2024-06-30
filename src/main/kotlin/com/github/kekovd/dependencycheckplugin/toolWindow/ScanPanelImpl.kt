@@ -2,6 +2,7 @@ package com.github.kekovd.dependencycheckplugin.toolWindow
 
 import com.github.kekovd.dependencycheckplugin.listeners.interfaces.DependencyFileListener
 import com.github.kekovd.dependencycheckplugin.services.interfaces.ResultTableService
+import com.github.kekovd.dependencycheckplugin.services.interfaces.ShowNotificationService
 import com.github.kekovd.dependencycheckplugin.services.interfaces.UpdateGitignoreService
 import com.github.kekovd.dependencycheckplugin.services.interfaces.UpdateProgressBarService
 import com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings
@@ -31,11 +32,14 @@ class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanP
     private val button = JButton("Start Scan")
     private val tabbedPane = JBTabbedPane()
 
-    private val updateProgressBarService: UpdateProgressBarService = project.getService(UpdateProgressBarService::class.java)
+    private val updateProgressBarService: UpdateProgressBarService =
+        project.getService(UpdateProgressBarService::class.java)
     private val updateGitignoreService: UpdateGitignoreService = project.getService(UpdateGitignoreService::class.java)
     private val resultTableService: ResultTableService = project.getService(ResultTableService::class.java)
     private val dependencyFileListener: DependencyFileListener = project.getService(DependencyFileListener::class.java)
-    private val notificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("DependencyCheckNotification")
+    private val notificationGroup =
+        NotificationGroupManager.getInstance().getNotificationGroup("DependencyCheckNotification")
+    private val showNotificationService = project.getService(ShowNotificationService::class.java)
 
     init {
         val connection: MessageBusConnection = project.messageBus.connect()
@@ -58,12 +62,11 @@ class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanP
     }
 
     override fun startScan() {
-        var notification =
-            notificationGroup.createNotification("Dependency Chech scan started.", NotificationType.INFORMATION)
-
-        SwingUtilities.invokeLater {
-            notification.notify(project)
-        }
+        showNotificationService.showNotification(
+            notificationGroup,
+            "Dependency Chech scan started.",
+            NotificationType.INFORMATION
+        )
 
         textArea.selectAll()
         textArea.replaceSelection("")
@@ -77,8 +80,7 @@ class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanP
 
                 JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE)
 
-                notification = notificationGroup.createNotification(message, NotificationType.ERROR)
-                notification.notify(project)
+                showNotificationService.showNotification(notificationGroup, message, NotificationType.ERROR)
             }
 
             return
@@ -88,12 +90,11 @@ class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanP
 
         if (nvdApiKey.isEmpty()) {
             SwingUtilities.invokeLater {
-            val message = "NVD Api Key is not set. Please configure it in settings."
+                val message = "NVD Api Key is not set. Please configure it in settings."
 
-            JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE)
+                JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE)
 
-            notification = notificationGroup.createNotification(message, NotificationType.ERROR)
-            notification.notify(project)
+                showNotificationService.showNotification(notificationGroup, message, NotificationType.ERROR)
             }
 
             return
@@ -158,14 +159,16 @@ class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanP
 
                     if (exitCode == 0) {
                         val message = "Dependency Check scan completed successfully."
-                        notification = notificationGroup.createNotification(message, NotificationType.INFORMATION)
-                        notification.notify(project)
+                        showNotificationService.showNotification(
+                            notificationGroup,
+                            message,
+                            NotificationType.INFORMATION
+                        )
 
                         textArea.append(message)
                     } else {
                         val message = "Dependency Check scan completed with error. Exit code: $exitCode"
-                        notification = notificationGroup.createNotification(message, NotificationType.ERROR)
-                        notification.notify(project)
+                        showNotificationService.showNotification(notificationGroup, message, NotificationType.ERROR)
 
                         textArea.append(message)
                     }
@@ -175,15 +178,15 @@ class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanP
                     resultTableService.addResultTable(
                         tabbedPane,
                         "$outputDirPath/dependency-check-report.csv",
-                        "file://$outputDirPath/dependency-check-report.html")
+                        "file://$outputDirPath/dependency-check-report.html"
+                    )
 
                     VfsUtil.markDirtyAndRefresh(true, true, true, currentFile)
                 }
             } catch (e: Exception) {
                 SwingUtilities.invokeLater {
                     val message = "Error running Dependency Check: ${e.message}"
-                    notification = notificationGroup.createNotification(message, NotificationType.ERROR)
-                    notification.notify(project)
+                    showNotificationService.showNotification(notificationGroup, message, NotificationType.ERROR)
 
                     textArea.append(message)
                     e.printStackTrace()

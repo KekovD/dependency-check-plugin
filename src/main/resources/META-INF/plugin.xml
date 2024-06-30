@@ -8,6 +8,12 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.ShowNotificationServiceImpl"
+                        serviceInterface="com.github.kekovd.dependencycheckplugin.services.interfaces.ShowNotificationService"/>
+        <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.CSVServiceImpl"
+                        serviceInterface="com.github.kekovd.dependencycheckplugin.services.interfaces.CSVService"/>
+        <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.TableServiceImpl"
+                        serviceInterface="com.github.kekovd.dependencycheckplugin.services.interfaces.TableService"/>
         <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.toolWindow.ScanPanelImpl"
                         serviceInterface="com.github.kekovd.dependencycheckplugin.toolWindow.interfaces.ScanPanel"/>
         <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.CellWidthServiceImpl"
