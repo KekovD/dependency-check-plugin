@@ -1,4 +1,3 @@
-<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
     <id>com.github.kekovd.dependencycheckplugin</id>
     <name>Dependency-Check</name>
@@ -37,8 +36,11 @@
         <notificationGroup id="DependencyCheckNotification" displayType="BALLOON" />
         <toolWindow factoryClass="com.github.kekovd.dependencycheckplugin.toolWindow.CheckerToolWindowFactory" id="Dependency Check"/>
         <applicationService serviceImplementation="com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings"/>
-        <projectConfigurable instance="com.github.kekovd.dependencycheckplugin.settings.DependencyCheckConfigurable"
-                             displayName="Dependency Check" id="DependencyCheckConfigurable"/>
+        <applicationConfigurable
+                parentId="tools"
+                instance="com.github.kekovd.dependencycheckplugin.settings.DependencyCheckConfigurable"
+                id="DependencyCheckConfigurable"
+                displayName="Dependency Check (Global)"/>
         <checkinHandlerFactory implementation="com.github.kekovd.dependencycheckplugin.versionControl.DependencyCheckinHandlerFactory"/>
     </extensions>
 
