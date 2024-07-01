@@ -8,6 +8,7 @@ import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileCreateEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent
 import com.intellij.openapi.vfs.newvfs.events.VFileEvent
+import java.nio.file.Paths
 import java.util.Properties
 
 class DependencyFileListenerImpl(private val project: Project) : DependencyFileListener {
@@ -17,10 +18,18 @@ class DependencyFileListenerImpl(private val project: Project) : DependencyFileL
 
     init {
         val patternsProperties = Properties()
-        patternsProperties.load(javaClass.getResourceAsStream("/dependencyFileListener/patterns.properties"))
+        patternsProperties.load(
+            javaClass.getResourceAsStream(
+                Paths.get("/dependencyFileListener/patterns.properties").toString()
+            )
+        )
 
         val extensionsProperties = Properties()
-        extensionsProperties.load(javaClass.getResourceAsStream("/dependencyFileListener/extensions.properties"))
+        extensionsProperties.load(
+            javaClass.getResourceAsStream(
+                Paths.get("/dependencyFileListener/extensions.properties").toString()
+            )
+        )
 
         filePatterns = patternsProperties.getProperty("patterns").split(",").map { it.trim() }
         fileExtensions = extensionsProperties.getProperty("extensions").split(",").map { it.trim() }

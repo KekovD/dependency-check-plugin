@@ -6,6 +6,7 @@ import com.intellij.openapi.project.Project
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
+import java.nio.file.Paths
 
 class ScanProcessServiceImpl(private val project: Project) : ScanProcessService {
     override fun startScanProcess(
@@ -14,7 +15,7 @@ class ScanProcessServiceImpl(private val project: Project) : ScanProcessService 
         appendText: (String) -> Unit
     ): Int {
         val basePath = project.basePath ?: return -1
-        val outputDirPath = settings.reportOutputPath.ifEmpty { "$basePath/.dependency-check" }
+        val outputDirPath = settings.reportOutputPath.ifEmpty { Paths.get(basePath, ".dependency-check").toString() }
         val outputDir = File(outputDirPath)
         val scannerStartUpdateVulnerability = if (settings.scannerStartUpdateVulnerability) "" else "--noupdate"
 

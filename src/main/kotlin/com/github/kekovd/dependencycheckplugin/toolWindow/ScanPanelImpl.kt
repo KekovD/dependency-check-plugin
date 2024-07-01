@@ -18,6 +18,7 @@ import java.awt.BorderLayout
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
+import java.nio.file.Paths
 import javax.swing.*
 
 class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanPanel {
@@ -59,8 +60,8 @@ class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanP
     override fun checkForVulnerabilities(): Boolean {
         val settings = DependencyCheckSettings.getInstance().state
         val basePath = project.basePath ?: return false
-        val outputDirPath = settings.reportOutputPath.ifEmpty { "$basePath/.dependency-check" }
-        val reportFile = File("$outputDirPath/dependency-check-report.csv")
+        val outputDirPath = settings.reportOutputPath.ifEmpty { Paths.get(basePath, ".dependency-check").toString() }
+        val reportFile = File(Paths.get(outputDirPath, "dependency-check-report.csv").toString())
 
         if (!reportFile.exists()) {
             return false
@@ -102,7 +103,7 @@ class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanP
         val basePath = project.basePath ?: run {
             return
         }
-        val outputDirPath = settings.reportOutputPath.ifEmpty { "$basePath/.dependency-check" }
+        val outputDirPath = settings.reportOutputPath.ifEmpty { Paths.get(basePath, ".dependency-check").toString() }
         val currentFile = LocalFileSystem.getInstance().findFileByPath(basePath)
 
         button.isEnabled = false
@@ -163,8 +164,8 @@ class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanP
                     button.isEnabled = true
                     resultTableService.addResultTable(
                         tabbedPane,
-                        "$outputDirPath/dependency-check-report.csv",
-                        "file://$outputDirPath/dependency-check-report.html"
+                        Paths.get(outputDirPath, "dependency-check-report.csv").toString(),
+                        "file://" + Paths.get(outputDirPath, "dependency-check-report.html").toString()
                     )
                     VfsUtil.markDirtyAndRefresh(true, true, true, currentFile)
                     ScanCounter.increment()

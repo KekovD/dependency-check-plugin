@@ -11,7 +11,14 @@ class CellWidthServiceImpl : CellWidthService {
             table.getCellRenderer(row, column)
         }
         val component = if (row == -1) {
-            renderer.getTableCellRendererComponent(table, table.columnModel.getColumn(column).headerValue, false, false, -1, column)
+            renderer.getTableCellRendererComponent(
+                table,
+                table.columnModel.getColumn(column).headerValue,
+                false,
+                false,
+                -1,
+                column
+            )
         } else {
             table.prepareRenderer(renderer, row, column)
         }
