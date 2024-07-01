@@ -39,6 +39,7 @@
         <applicationService serviceImplementation="com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings"/>
         <projectConfigurable instance="com.github.kekovd.dependencycheckplugin.settings.DependencyCheckConfigurable"
                              displayName="Dependency Check" id="DependencyCheckConfigurable"/>
+        <checkinHandlerFactory implementation="com.github.kekovd.dependencycheckplugin.versionControl.DependencyCheckinHandlerFactory"/>
     </extensions>
 
     <applicationListeners>

@@ -15,13 +15,12 @@ import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTabbedPane
 import com.intellij.util.messages.MessageBusConnection
 import java.awt.BorderLayout
-import javax.swing.JButton
-import javax.swing.JProgressBar
-import javax.swing.JTextArea
-import javax.swing.SwingUtilities
+import java.io.BufferedReader
+import java.io.File
+import java.io.FileReader
+import javax.swing.*
 
 class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanPanel {
-
     private val textArea = JTextArea()
     private val progressBar = JProgressBar(0, 100)
     private val scrollPane = JBScrollPane(textArea)
@@ -57,6 +56,31 @@ class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanP
         textArea.isEditable = false
     }
 
+    override fun checkForVulnerabilities(): Boolean {
+        val settings = DependencyCheckSettings.getInstance().state
+        val basePath = project.basePath ?: return false
+        val outputDirPath = settings.reportOutputPath.ifEmpty { "$basePath/.dependency-check" }
+        val reportFile = File("$outputDirPath/dependency-check-report.csv")
+
+        if (!reportFile.exists()) {
+            return false
+        }
+
+        BufferedReader(FileReader(reportFile)).use { reader ->
+            var linesCount = 0
+            while (reader.readLine() != null) {
+                linesCount++
+                if (linesCount > 1) {
+                    return true
+                }
+            }
+        }
+
+        return false
+    }
+
+    data class ScanProgress(val type: String, val value: Any)
+
     override fun startScan() {
         showNotificationService.showNotification(
             notificationGroup,
@@ -75,52 +99,79 @@ class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanP
             return
         }
 
-        val basePath = project.basePath ?: return
+        val basePath = project.basePath ?: run {
+            return
+        }
         val outputDirPath = settings.reportOutputPath.ifEmpty { "$basePath/.dependency-check" }
         val currentFile = LocalFileSystem.getInstance().findFileByPath(basePath)
 
-        Thread {
-            try {
-                button.isEnabled = false
-                updateGitignoreService.updateGitignore(settings, basePath, outputDirPath)
+        button.isEnabled = false
 
-                val exitCode = scanProcessService.startScanProcess(settings,
-                    { percent -> SwingUtilities.invokeLater { updateProgressBarService.updateProgressBar(progressBar, percent) } },
-                    { line -> SwingUtilities.invokeLater { textArea.append("$line\n"); scrollPane.verticalScrollBar.value = scrollPane.verticalScrollBar.maximum } }
-                )
+        val worker = object : SwingWorker<Unit, ScanProgress>() {
+            override fun doInBackground() {
+                try {
+                    updateGitignoreService.updateGitignore(settings, basePath, outputDirPath)
 
-                SwingUtilities.invokeLater {
-                    progressBar.value = 100
+                    val exitCode = scanProcessService.startScanProcess(settings,
+                        { percent ->
+                            publish(ScanProgress("progress", percent))
+                        },
+                        { line ->
+                            publish(ScanProgress("output", line))
+                        }
+                    )
 
                     if (exitCode == 0) {
-                        val message = "Dependency Check scan completed successfully."
-                        showNotificationService.showNotification(notificationGroup, message, NotificationType.INFORMATION)
-                        textArea.append(message)
+                        publish(ScanProgress("message", "Dependency Check scan completed successfully."))
                     } else {
-                        val message = "Dependency Check scan completed with error. Exit code: $exitCode"
-                        showNotificationService.showNotification(notificationGroup, message, NotificationType.ERROR)
-                        textArea.append(message)
+                        publish(
+                            ScanProgress(
+                                "message",
+                                "Dependency Check scan completed with error. Exit code: $exitCode"
+                            )
+                        )
                     }
+                } catch (e: Exception) {
+                    publish(ScanProgress("message", "Error running Dependency Check: ${e.message}"))
+                }
+            }
 
+            override fun process(list: List<ScanProgress>) {
+                list.forEach { progress ->
+                    when (progress.type) {
+                        "progress" -> updateProgressBarService.updateProgressBar(progressBar, progress.value as Int)
+                        "output" -> {
+                            textArea.append("${progress.value}\n")
+                            scrollPane.verticalScrollBar.value = scrollPane.verticalScrollBar.maximum
+                        }
+
+                        "message" -> {
+                            val message = progress.value as String
+                            showNotificationService.showNotification(
+                                notificationGroup,
+                                message,
+                                if (message.startsWith("Error")) NotificationType.ERROR else NotificationType.INFORMATION
+                            )
+                        }
+                    }
+                }
+            }
+
+            override fun done() {
+                SwingUtilities.invokeLater {
+                    progressBar.value = 100
                     button.isEnabled = true
                     resultTableService.addResultTable(
                         tabbedPane,
                         "$outputDirPath/dependency-check-report.csv",
                         "file://$outputDirPath/dependency-check-report.html"
                     )
-
                     VfsUtil.markDirtyAndRefresh(true, true, true, currentFile)
-                }
-            } catch (e: Exception) {
-                SwingUtilities.invokeLater {
-                    val message = "Error running Dependency Check: ${e.message}"
-                    showNotificationService.showNotification(notificationGroup, message, NotificationType.ERROR)
-                    textArea.append(message)
-                    e.printStackTrace()
-                    button.isEnabled = true
-                    VfsUtil.markDirtyAndRefresh(true, true, true, currentFile)
+                    ScanCounter.increment()
                 }
             }
-        }.start()
+        }
+
+        worker.execute()
     }
 }
