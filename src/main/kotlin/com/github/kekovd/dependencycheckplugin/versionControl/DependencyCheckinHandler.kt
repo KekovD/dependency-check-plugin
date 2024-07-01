@@ -38,7 +38,7 @@ class DependencyCheckinHandler(private val project: Project) : CheckinHandler() 
     }
 
     private fun showVulnerabilitiesFoundDialog(): ReturnResult {
-        val result = Messages.showDialog(
+        Messages.showDialog(
             project,
             "Vulnerabilities were found during the scan. Please fix the issues before committing.",
             "Vulnerabilities Found",
