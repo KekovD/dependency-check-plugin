@@ -6,7 +6,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.ui.table.JBTable
 import org.mockito.Mockito.mock
-import org.mockito.Mockito.`when`
+import org.mockito.kotlin.whenever
 import javax.swing.table.DefaultTableModel
 
 class TableServiceImplTest: BasePlatformTestCase() {
@@ -21,8 +21,8 @@ class TableServiceImplTest: BasePlatformTestCase() {
         mockProject = mock()
         mockCellWidthService = mock()
         mockShowNotificationService = mock()
-        `when`(mockProject.getService(CellWidthService::class.java)).thenReturn(mockCellWidthService)
-        `when`(mockProject.getService(ShowNotificationService::class.java)).thenReturn(mockShowNotificationService)
+        whenever(mockProject.getService(CellWidthService::class.java)).thenReturn(mockCellWidthService)
+        whenever(mockProject.getService(ShowNotificationService::class.java)).thenReturn(mockShowNotificationService)
         tableService = TableServiceImpl(mockProject)
     }
 
@@ -43,10 +43,10 @@ class TableServiceImplTest: BasePlatformTestCase() {
 
     fun testSetupTableColumns() {
         val table = JBTable(DefaultTableModel(arrayOf(arrayOf("Cell1", "Cell2")), arrayOf("Col1", "Col2")))
-        `when`(mockCellWidthService.getCellWidth(table, 0, -1)).thenReturn(50)
-        `when`(mockCellWidthService.getCellWidth(table, 1, -1)).thenReturn(70)
-        `when`(mockCellWidthService.getCellWidth(table, 0, 0)).thenReturn(100)
-        `when`(mockCellWidthService.getCellWidth(table, 1, 0)).thenReturn(120)
+        whenever(mockCellWidthService.getCellWidth(table, 0, -1)).thenReturn(50)
+        whenever(mockCellWidthService.getCellWidth(table, 1, -1)).thenReturn(70)
+        whenever(mockCellWidthService.getCellWidth(table, 0, 0)).thenReturn(100)
+        whenever(mockCellWidthService.getCellWidth(table, 1, 0)).thenReturn(120)
 
         tableService.setupTableColumns(table)
 

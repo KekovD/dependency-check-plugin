@@ -54,10 +54,10 @@ class DependencyFileListenerImplTest : BasePlatformTestCase() {
         whenever(mockFile.extension).thenReturn("nupkg")
 
         val changeEvent = mock(VFileContentChangeEvent::class.java).apply {
-            `when`(this.file).thenReturn(mockFile)
+            whenever(this.file).thenReturn(mockFile)
         }
         val createEvent = mock(VFileCreateEvent::class.java).apply {
-            `when`(this.file).thenReturn(mockFile)
+            whenever(this.file).thenReturn(mockFile)
         }
 
         val events = listOf(changeEvent, createEvent)
@@ -78,10 +78,10 @@ class DependencyFileListenerImplTest : BasePlatformTestCase() {
         whenever(mockFile.extension).thenReturn("md")
 
         val changeEvent = mock(VFileContentChangeEvent::class.java).apply {
-            `when`(this.file).thenReturn(mockFile)
+            whenever(this.file).thenReturn(mockFile)
         }
         val createEvent = mock(VFileCreateEvent::class.java).apply {
-            `when`(this.file).thenReturn(mockFile)
+            whenever(this.file).thenReturn(mockFile)
         }
 
         val events = listOf(changeEvent, createEvent)
@@ -105,10 +105,10 @@ class DependencyFileListenerImplTest : BasePlatformTestCase() {
         whenever(mockFile.extension).thenReturn("nupkg")
 
         val changeEvent = mock(VFileContentChangeEvent::class.java).apply {
-            `when`(this.file).thenReturn(mockFile)
+            whenever(this.file).thenReturn(mockFile)
         }
         val createEvent = mock(VFileCreateEvent::class.java).apply {
-            `when`(this.file).thenReturn(mockFile)
+            whenever(this.file).thenReturn(mockFile)
         }
 
         val events = listOf(changeEvent, createEvent)
