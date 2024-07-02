@@ -35,6 +35,7 @@ intellij {
 dependencies {
     testImplementation("com.intellij.remoterobot:remote-robot:$remoteRobotVersion")
     testImplementation("com.intellij.remoterobot:remote-fixtures:$remoteRobotVersion")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
     implementation("com.opencsv:opencsv:5.9")
 }
 

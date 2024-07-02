@@ -7,6 +7,8 @@
     <depends>com.intellij.modules.platform</depends>
 
     <extensions defaultExtensionNs="com.intellij">
+        <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.MessageDisplayServiceImpl"
+                        serviceInterface="com.github.kekovd.dependencycheckplugin.services.interfaces.MessageDisplayService"/>
         <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.ScanProcessServiceImpl"
                         serviceInterface="com.github.kekovd.dependencycheckplugin.services.interfaces.ScanProcessService"/>
         <projectService serviceImplementation="com.github.kekovd.dependencycheckplugin.services.SettingsValidationServiceImpl"

@@ -1,30 +1,33 @@
 package com.github.kekovd.dependencycheckplugin.services
 
+import com.github.kekovd.dependencycheckplugin.services.interfaces.MessageDisplayService
 import com.github.kekovd.dependencycheckplugin.services.interfaces.SettingsValidationService
 import com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings
+import com.intellij.openapi.project.Project
 import javax.swing.JOptionPane
-import javax.swing.SwingUtilities
 
-class SettingsValidationServiceImpl: SettingsValidationService {
+class SettingsValidationServiceImpl(private val project: Project) : SettingsValidationService {
+
+    private val messageDisplayService: MessageDisplayService = project.getService(MessageDisplayService::class.java)
+
     override fun validateSettings(settings: DependencyCheckSettings.State): Pair<Boolean, String> {
         val dependencyCheckScriptPath = settings.dependencyCheckScriptPath
 
         if (dependencyCheckScriptPath.isEmpty()) {
-            SwingUtilities.invokeLater {
-                val message = "Path to dependency-check.sh is not set. Please configure it in settings."
-                JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE)
-            }
-            return false to "Path to dependency-check.sh is not set. Please configure it in settings."
+
+            val message = "Path to dependency-check.sh is not set. Please configure it in settings."
+            messageDisplayService.showMessage(null, message, "Error", JOptionPane.ERROR_MESSAGE)
+
+            return false to message
         }
 
         val nvdApiKey = settings.nvdApiKey
 
         if (nvdApiKey.isEmpty()) {
-            SwingUtilities.invokeLater {
-                val message = "NVD Api Key is not set. Please configure it in settings."
-                JOptionPane.showMessageDialog(null, message, "Error", JOptionPane.ERROR_MESSAGE)
-            }
-            return false to "NVD Api Key is not set. Please configure it in settings."
+            val message = "NVD Api Key is not set. Please configure it in settings."
+            messageDisplayService.showMessage(null, message, "Error", JOptionPane.ERROR_MESSAGE)
+
+            return false to message
         }
 
         return true to ""
