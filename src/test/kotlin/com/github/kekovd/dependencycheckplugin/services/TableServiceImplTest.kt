@@ -11,19 +11,19 @@ import javax.swing.table.DefaultTableModel
 
 class TableServiceImplTest: BasePlatformTestCase() {
 
-    private lateinit var project: Project
-    private lateinit var cellWidthService: CellWidthService
-    private lateinit var showNotificationService: ShowNotificationService
+    private lateinit var mockProject: Project
+    private lateinit var mockCellWidthService: CellWidthService
+    private lateinit var mockShowNotificationService: ShowNotificationService
     private lateinit var tableService: TableServiceImpl
 
     override fun setUp() {
         super.setUp()
-        project = mock(Project::class.java)
-        cellWidthService = mock(CellWidthService::class.java)
-        showNotificationService = mock(ShowNotificationService::class.java)
-        `when`(project.getService(CellWidthService::class.java)).thenReturn(cellWidthService)
-        `when`(project.getService(ShowNotificationService::class.java)).thenReturn(showNotificationService)
-        tableService = TableServiceImpl(project)
+        mockProject = mock()
+        mockCellWidthService = mock()
+        mockShowNotificationService = mock()
+        `when`(mockProject.getService(CellWidthService::class.java)).thenReturn(mockCellWidthService)
+        `when`(mockProject.getService(ShowNotificationService::class.java)).thenReturn(mockShowNotificationService)
+        tableService = TableServiceImpl(mockProject)
     }
 
     fun testCreateTableModel() {
@@ -43,10 +43,10 @@ class TableServiceImplTest: BasePlatformTestCase() {
 
     fun testSetupTableColumns() {
         val table = JBTable(DefaultTableModel(arrayOf(arrayOf("Cell1", "Cell2")), arrayOf("Col1", "Col2")))
-        `when`(cellWidthService.getCellWidth(table, 0, -1)).thenReturn(50)
-        `when`(cellWidthService.getCellWidth(table, 1, -1)).thenReturn(70)
-        `when`(cellWidthService.getCellWidth(table, 0, 0)).thenReturn(100)
-        `when`(cellWidthService.getCellWidth(table, 1, 0)).thenReturn(120)
+        `when`(mockCellWidthService.getCellWidth(table, 0, -1)).thenReturn(50)
+        `when`(mockCellWidthService.getCellWidth(table, 1, -1)).thenReturn(70)
+        `when`(mockCellWidthService.getCellWidth(table, 0, 0)).thenReturn(100)
+        `when`(mockCellWidthService.getCellWidth(table, 1, 0)).thenReturn(120)
 
         tableService.setupTableColumns(table)
 
