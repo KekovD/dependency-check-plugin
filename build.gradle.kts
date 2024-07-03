@@ -35,7 +35,12 @@ intellij {
 dependencies {
     testImplementation("com.intellij.remoterobot:remote-robot:$remoteRobotVersion")
     testImplementation("com.intellij.remoterobot:remote-fixtures:$remoteRobotVersion")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.2")
+    testImplementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("com.opencsv:opencsv:5.9")
 }
 
@@ -114,6 +119,16 @@ tasks {
         systemProperty("ide.mac.message.dialogs.as.sheets", "false")
         systemProperty("jb.privacy.policy.text", "<!--999.999-->")
         systemProperty("jb.consents.confirmation.enabled", "false")
+        systemProperty("ide.mac.file.chooser.native", "false")
+        systemProperty("jbScreenMenuBar.enabled", "false")
+        systemProperty("apple.laf.useScreenMenuBar", "false")
+        systemProperty("idea.trust.all.projects", "true")
+        systemProperty("ide.show.tips.on.startup.default.value", "false")
+        systemProperty("robot-server.host.public", "true")
+    }
+
+    test {
+        useJUnitPlatform()
     }
 
     signPlugin {

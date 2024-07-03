@@ -97,10 +97,24 @@ jobs:
           path: ./build/distributions/content/*/*
 
   # Run tests and upload a code coverage report
-  test:
-    name: Test
-    needs: [ build ]
-    runs-on: ubuntu-latest
+  testUI:
+    name: Run Tests
+
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            runIde: |
+              export DISPLAY=:99.0
+              Xvfb -ac :99 -screen 0 1920x1080x16 &
+              gradle runIdeForUiTests &
+          - os: windows-latest
+            runIde: start gradlew.bat runIdeForUiTests
+          - os: macos-latest
+            runIde: ./gradlew runIdeForUiTests &
+
     steps:
 
       # Check out the current repository
@@ -120,23 +134,21 @@ jobs:
         with:
           gradle-home-cache-cleanup: true
 
+      # Run IDEA prepared for UI testing
+      - name: Run IDE
+        run: ${{ matrix.runIde }}
+
+      # Wait for IDEA to be started
+      - name: Health Check
+        uses: jtalk/url-health-check-action@v4
+        with:
+          url: http://127.0.0.1:8082
+          max-attempts: 15
+          retry-delay: 30s
+
       # Run tests
-      - name: Run Tests
-        run: ./gradlew check
-
-      # Collect Tests Result of failed tests
-      - name: Collect Tests Result
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: tests-result
-          path: ${{ github.workspace }}/build/reports/tests
-
-      # Upload the Kover report to CodeCov
-      - name: Upload Code Coverage Report
-        uses: codecov/codecov-action@v4
-        with:
-          files: ${{ github.workspace }}/build/reports/kover/report.xml
+      - name: Tests
+        run: ./gradlew test
 
   # Run plugin structure verification along with IntelliJ Plugin Verifier
   verify:

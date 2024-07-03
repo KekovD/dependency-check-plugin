@@ -3,20 +3,25 @@ package com.github.kekovd.dependencycheckplugin.services
 import com.github.kekovd.dependencycheckplugin.services.interfaces.ScanProcessService
 import com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings
 import com.intellij.openapi.project.Project
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.junit.Assert.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import org.mockito.junit.MockitoJUnitRunner
 
-class ScanProcessServiceImplTest: BasePlatformTestCase() {
+@RunWith(MockitoJUnitRunner::class)
+class ScanProcessServiceImplTest {
     private lateinit var scanProcessService: ScanProcessService
     private lateinit var mockProject: Project
 
-    override fun setUp() {
-        super.setUp()
-
+    @BeforeEach
+    fun setUp() {
         mockProject = mock()
         scanProcessService = ScanProcessServiceImpl(mockProject)
     }
 
+    @Test
     fun testStartScanProcessFailure() {
         val mockSettings = DependencyCheckSettings.State().apply {
             dependencyCheckScriptPath = ""

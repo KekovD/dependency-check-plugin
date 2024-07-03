@@ -1,10 +1,12 @@
 package com.github.kekovd.dependencycheckplugin.services
 
 import com.intellij.ui.table.JBTable
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.junit.jupiter.api.Assertions
+import org.junit.jupiter.api.Test
 import javax.swing.table.DefaultTableModel
 
-class CellWidthServiceImplTest : BasePlatformTestCase() {
+class CellWidthServiceImplTest {
+    @Test
     fun testGetCellWidth() {
         val service = CellWidthServiceImpl()
         val columnNames = arrayOf("Column 1", "Column 2")
@@ -16,9 +18,9 @@ class CellWidthServiceImplTest : BasePlatformTestCase() {
         val table = JBTable(tableModel)
 
         val headerWidth = service.getCellWidth(table, 0, -1)
-        assertTrue(headerWidth > 0)
+        Assertions.assertTrue(headerWidth > 0)
 
         val cellWidth = service.getCellWidth(table, 0, 0)
-        assertTrue(cellWidth > 0)
+        Assertions.assertTrue(cellWidth > 0)
     }
 }

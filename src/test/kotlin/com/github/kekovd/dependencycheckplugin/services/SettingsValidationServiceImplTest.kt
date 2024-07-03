@@ -4,22 +4,28 @@ import com.github.kekovd.dependencycheckplugin.services.interfaces.MessageDispla
 import com.github.kekovd.dependencycheckplugin.services.interfaces.SettingsValidationService
 import com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings
 import com.intellij.openapi.project.Project
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.whenever
 import java.awt.Component
 
-class SettingsValidationServiceImplTest: BasePlatformTestCase() {
+@RunWith(MockitoJUnitRunner::class)
+class SettingsValidationServiceImplTest {
 
     private val mockProject: Project = mock()
     private lateinit var mockSettingsValidationService: SettingsValidationService
 
-    override fun setUp() {
-        super.setUp()
+    @BeforeEach
+    fun setUp() {
         whenever(mockProject.getService(MessageDisplayService::class.java)).thenReturn(MockMessageDisplayService())
         mockSettingsValidationService = SettingsValidationServiceImpl(mockProject)
     }
 
+    @Test
     fun testValidateSettingsWithValidSettings() {
         val validSettings = DependencyCheckSettings.State().apply {
             dependencyCheckScriptPath = "path/to/dependency-check.sh"
@@ -32,6 +38,7 @@ class SettingsValidationServiceImplTest: BasePlatformTestCase() {
         assertEquals("", validationResult.second)
     }
 
+    @Test
     fun testValidateSettingsWithEmptyScriptPath() {
         val emptyScriptPathSettings = DependencyCheckSettings.State().apply {
             dependencyCheckScriptPath = ""
@@ -44,6 +51,7 @@ class SettingsValidationServiceImplTest: BasePlatformTestCase() {
         assertEquals("Path to dependency-check.sh is not set. Please configure it in settings.", validationResult.second)
     }
 
+    @Test
     fun testValidateSettingsWithEmptyApiKey() {
         val emptyApiKeySettings = DependencyCheckSettings.State().apply {
             dependencyCheckScriptPath = "path/to/dependency-check.sh"

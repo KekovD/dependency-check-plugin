@@ -1,18 +1,25 @@
 package com.github.kekovd.dependencycheckplugin.services
 
 import com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.runner.RunWith
+import org.mockito.junit.MockitoJUnitRunner
 import java.io.File
 import kotlin.io.path.createTempDirectory
 
-class UpdateGitignoreServiceImplTest : BasePlatformTestCase() {
+@RunWith(MockitoJUnitRunner::class)
+class UpdateGitignoreServiceImplTest {
     private lateinit var updateGitignoreService: UpdateGitignoreServiceImpl
 
-    override fun setUp() {
-        super.setUp()
+    @BeforeEach
+    fun setUp() {
         updateGitignoreService = UpdateGitignoreServiceImpl()
     }
 
+    @Test
     fun testUpdateGitignore_addToGitignore() {
         val tempDir = createTempDirectory().toFile()
         val gitignoreFile = File(tempDir, ".gitignore").apply {
@@ -28,6 +35,7 @@ class UpdateGitignoreServiceImplTest : BasePlatformTestCase() {
         assertTrue(gitignoreFile.readText().contains("\noutputDir"))
     }
 
+    @Test
     fun testUpdateGitignore_removeFromGitignore() {
         val tempDir = createTempDirectory().toFile()
         val gitignoreFile = File(tempDir, ".gitignore").apply {

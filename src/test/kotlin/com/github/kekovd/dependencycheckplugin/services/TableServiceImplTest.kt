@@ -3,21 +3,27 @@ package com.github.kekovd.dependencycheckplugin.services
 import com.github.kekovd.dependencycheckplugin.services.interfaces.CellWidthService
 import com.github.kekovd.dependencycheckplugin.services.interfaces.ShowNotificationService
 import com.intellij.openapi.project.Project
-import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.ui.table.JBTable
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Test
+import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
+import org.mockito.junit.MockitoJUnitRunner
 import org.mockito.kotlin.whenever
 import javax.swing.table.DefaultTableModel
 
-class TableServiceImplTest: BasePlatformTestCase() {
+@RunWith(MockitoJUnitRunner::class)
+class TableServiceImplTest {
 
     private lateinit var mockProject: Project
     private lateinit var mockCellWidthService: CellWidthService
     private lateinit var mockShowNotificationService: ShowNotificationService
     private lateinit var tableService: TableServiceImpl
 
-    override fun setUp() {
-        super.setUp()
+    @BeforeEach
+    fun setUp() {
         mockProject = mock()
         mockCellWidthService = mock()
         mockShowNotificationService = mock()
@@ -26,6 +32,7 @@ class TableServiceImplTest: BasePlatformTestCase() {
         tableService = TableServiceImpl(mockProject)
     }
 
+    @Test
     fun testCreateTableModel() {
         val headers = arrayOf("Header1", "Header2")
         val rows = listOf(arrayOf("Row1Col1", "Row1Col2"), arrayOf("Row2Col1", "Row2Col2"))
@@ -41,6 +48,7 @@ class TableServiceImplTest: BasePlatformTestCase() {
         assertFalse(tableModel.isCellEditable(0, 0))
     }
 
+    @Test
     fun testSetupTableColumns() {
         val table = JBTable(DefaultTableModel(arrayOf(arrayOf("Cell1", "Cell2")), arrayOf("Col1", "Col2")))
         whenever(mockCellWidthService.getCellWidth(table, 0, -1)).thenReturn(50)
