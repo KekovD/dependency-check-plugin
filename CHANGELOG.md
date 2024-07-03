@@ -2,5 +2,6 @@
 
 # dependency-check-plugin Changelog
 
+## [Unreleased]
 ### Added
 - First 0.0.1 version
