@@ -97,7 +97,7 @@ jobs:
           path: ./build/distributions/content/*/*
 
   # Run tests and upload a code coverage report
-  testUI:
+  test:
     name: Run Tests
 
     runs-on: ${{ matrix.os }}
