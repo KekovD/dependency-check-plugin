@@ -1,8 +1,8 @@
 <idea-plugin>
     <id>com.github.kekovd.dependencycheckplugin</id>
-    <name>Dependency-Check</name>
+    <name>Dependency Check</name>
     <vendor>kekovd</vendor>
-    <description>Dependency Check plugin [sample text] [sample text]</description>
+    <description>Dependency Check plugin for pt-start-dev-integrations</description>
 
     <depends>com.intellij.modules.platform</depends>
 
