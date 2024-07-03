@@ -2,7 +2,7 @@
 
 <!-- Plugin description -->
 
-Плагин для IntelliJ Idea для поиска уязвимостей в зависимостях с помощью установленного локально
+The plugin for IntelliJ Idea to search for dependency vulnerabilities with locally installed
 [OWASP Dependency Check Command Line](https://owasp.org/www-project-dependency-check/)
 
 <!-- Plugin description end -->
