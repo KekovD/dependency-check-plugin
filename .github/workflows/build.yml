@@ -105,11 +105,8 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
-            runIde: |
-              export DISPLAY=:99.0
-              Xvfb -ac :99 -screen 0 1920x1080x16 &
-              gradle runIdeForUiTests &
+          - os: macos-latest
+            runIde: ./gradlew runIdeForUiTests &
 
     steps:
 
