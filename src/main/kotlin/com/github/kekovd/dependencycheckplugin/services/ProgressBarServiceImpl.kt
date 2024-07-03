@@ -39,5 +39,9 @@ class ProgressBarServiceImpl(project: Project) : ProgressBarService {
     override fun updateProgressBar(progress: Int) {
         updatePercent = progress
         progressBarWidget?.let { statusBar?.updateWidget(it.ID()) }
+        if (progress == 100) {
+            progressBarWidget?.let { statusBar?.removeWidget(it.ID()) }
+            progressBarWidget?.dispose()
+        }
     }
 }
