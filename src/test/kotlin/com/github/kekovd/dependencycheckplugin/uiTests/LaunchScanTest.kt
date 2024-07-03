@@ -33,10 +33,6 @@ class LaunchScanTest {
 
     @Test
     fun testStartScan(remoteRobot: RemoteRobot) = runBlocking {
-        if (System.getProperty("excludeTags")?.contains("UI") == true) {
-            Assumptions.assumeFalse(true, "Skipping test due to excludeTags property")
-        }
-
         step("Create New Project") {
             remoteRobot.welcomeFrame {
                 createNewProjectLink()
