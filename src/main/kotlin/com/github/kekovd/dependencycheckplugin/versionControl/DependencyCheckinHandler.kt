@@ -1,5 +1,6 @@
 package com.github.kekovd.dependencycheckplugin.versionControl
 
+import com.github.kekovd.dependencycheckplugin.settings.DependencyCheckSettings
 import com.github.kekovd.dependencycheckplugin.toolWindow.ScanCounter
 import com.github.kekovd.dependencycheckplugin.toolWindow.interfaces.ScanPanel
 import com.intellij.openapi.project.Project
@@ -12,6 +13,11 @@ class DependencyCheckinHandler(private val project: Project) : CheckinHandler() 
     }
 
     override fun beforeCheckin(): ReturnResult {
+        val settings = DependencyCheckSettings.getInstance().state
+
+        if (!settings.scanCommit)
+            return ReturnResult.COMMIT
+
         val scanPanel = project.getService(ScanPanel::class.java)
 
         if (lastScanCount == ScanCounter.getCount()) {

@@ -18,6 +18,7 @@ import java.awt.BorderLayout
 import java.io.BufferedReader
 import java.io.File
 import java.io.FileReader
+import java.nio.file.Files
 import java.nio.file.Paths
 import javax.swing.*
 
@@ -103,7 +104,12 @@ class ScanPanelImpl(private val project: Project) : JBPanel<JBPanel<*>>(), ScanP
         val basePath = project.basePath ?: run {
             return
         }
+
         val outputDirPath = settings.reportOutputPath.ifEmpty { Paths.get(basePath, ".dependency-check").toString() }
+        if (Files.notExists(Paths.get(outputDirPath))) {
+            Files.createDirectories(Paths.get(outputDirPath))
+        }
+
         val currentFile = LocalFileSystem.getInstance().findFileByPath(basePath)
 
         button.isEnabled = false

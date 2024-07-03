@@ -15,6 +15,7 @@ class DependencyCheckConfigurable : Configurable {
     private var scannerStartUpdateVulnerabilityCheckBox: JCheckBox? = null
     private var appActivationUpdateVulnerabilityCheckBox: JCheckBox? = null
     private var scanAfterChangeDependencyFilesCheckBox: JCheckBox? = null
+    private var scanCommitCheckBox: JCheckBox? = null
 
     override fun createComponent(): JComponent? {
         if (settingsPanel == null) {
@@ -28,6 +29,7 @@ class DependencyCheckConfigurable : Configurable {
             scannerStartUpdateVulnerabilityCheckBox = JCheckBox("Update vulnerability data when scanning starts")
             appActivationUpdateVulnerabilityCheckBox = JCheckBox("Update vulnerability data when launching the IDE")
             scanAfterChangeDependencyFilesCheckBox = JCheckBox("Scanning after modifying dependency files")
+            scanCommitCheckBox = JCheckBox("Scan before commit and reject commit if vulnerabilities are found")
 
             val dependencyCheckScriptPathLabel = JLabel("Full path to dependency-check[.sh/.bat]")
             val outputPathLabel = JLabel("Path to save reports:")
@@ -85,8 +87,14 @@ class DependencyCheckConfigurable : Configurable {
             constraints.weightx = 1.0
             settingsPanel!!.add(scanAfterChangeDependencyFilesCheckBox!!, constraints)
 
-            constraints.gridx = 0
+            constraints.gridx = 1
             constraints.gridy = 7
+            constraints.gridwidth = 2
+            constraints.weightx = 1.0
+            settingsPanel!!.add(scanCommitCheckBox!!, constraints)
+
+            constraints.gridx = 0
+            constraints.gridy = 8
             constraints.weighty = 1.0
             constraints.fill = GridBagConstraints.BOTH
             settingsPanel!!.add(Box.createVerticalGlue(), constraints)
@@ -102,7 +110,8 @@ class DependencyCheckConfigurable : Configurable {
                 nvdApiKeyField!!.text != settings.nvdApiKey ||
                 scannerStartUpdateVulnerabilityCheckBox!!.isSelected != settings.scannerStartUpdateVulnerability ||
                 appActivationUpdateVulnerabilityCheckBox!!.isSelected != settings.appActivationUpdateVulnerability ||
-                scanAfterChangeDependencyFilesCheckBox!!.isSelected != settings.scanAfterChangeDependencyFiles
+                scanAfterChangeDependencyFilesCheckBox!!.isSelected != settings.scanAfterChangeDependencyFiles ||
+                scanCommitCheckBox!!.isSelected != settings.scanCommit
     }
 
     override fun apply() {
@@ -114,6 +123,7 @@ class DependencyCheckConfigurable : Configurable {
         settings.scannerStartUpdateVulnerability = scannerStartUpdateVulnerabilityCheckBox!!.isSelected
         settings.appActivationUpdateVulnerability = appActivationUpdateVulnerabilityCheckBox!!.isSelected
         settings.scanAfterChangeDependencyFiles = scanAfterChangeDependencyFilesCheckBox!!.isSelected
+        settings.scanCommit = scanCommitCheckBox!!.isSelected
     }
 
     override fun reset() {
@@ -125,6 +135,7 @@ class DependencyCheckConfigurable : Configurable {
         scannerStartUpdateVulnerabilityCheckBox!!.isSelected = settings.scannerStartUpdateVulnerability
         appActivationUpdateVulnerabilityCheckBox!!.isSelected = settings.appActivationUpdateVulnerability
         scanAfterChangeDependencyFilesCheckBox!!.isSelected = settings.scanAfterChangeDependencyFiles
+        scanCommitCheckBox!!.isSelected = settings.scanCommit
     }
 
     override fun getDisplayName(): String {

@@ -25,6 +25,7 @@ class DependencyCheckSettings : PersistentStateComponent<DependencyCheckSettings
         var scannerStartUpdateVulnerability: Boolean = false,
         var appActivationUpdateVulnerability: Boolean = false,
         var scanAfterChangeDependencyFiles: Boolean = false,
+        var scanCommit: Boolean = true,
     )
 
     companion object {
