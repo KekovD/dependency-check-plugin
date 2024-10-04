@@ -38,7 +38,7 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.0")
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.3.1")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.2")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.2")
     testImplementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
     implementation("com.opencsv:opencsv:5.9")
